@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0
 
-pragma solidity >=0.7.0 <0.9.0;
+pragma solidity 0.8.7;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
@@ -15,7 +15,7 @@ contract MoriesEth is Ownable, ERC721('CryptoMories', 'CRYPTOMORIES'), Reentranc
 
     mapping(uint256 => bool) minted;
     uint256 royaltyPercent = 250; // 2.5% out of 10k bps
-    uint256 devShare = 500; //5% out of 10k bps
+    uint256 devShare = 1000; //10% out of 10k bps
 
     function tokenURI(uint256 tokenId) public view override returns (string memory) {
         return ERC721(MORIES).tokenURI(tokenId);
@@ -43,11 +43,7 @@ contract MoriesEth is Ownable, ERC721('CryptoMories', 'CRYPTOMORIES'), Reentranc
     }
 
     function onERC721Received(address _operator, address _from, uint256 tokenId, bytes calldata) external nonReentrant returns (bytes4) {
-        if(msg.sender == address(this)) {
-            ERC721(MORIES).safeTransferFrom(address(this), _from, tokenId);
-            emit MorieSwapped2(tokenId);
-        } 
-        else if (msg.sender == MORIES) {
+        if (msg.sender == MORIES) {
             if(minted[tokenId]) {
                 safeTransferFrom(address(this), _from, tokenId);
             } else {
@@ -71,4 +67,4 @@ contract MoriesEth is Ownable, ERC721('CryptoMories', 'CRYPTOMORIES'), Reentranc
 
     event MorieSwapped1(uint256 tokenId);
     event MorieSwapped2(uint256 tokenId);
-} 
+}
