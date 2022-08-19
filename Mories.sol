@@ -14,15 +14,11 @@ contract MoriesEth is Ownable, ERC721('CryptoMories', 'CRYPTOMORIES'), Reentranc
     address dev2 = 0x91187CBbf052F0F2DEDeC93e7b0e961636fA8043;
 
     mapping(uint256 => bool) minted;
-    uint256 royaltyPercent = 250; // 2.5% out of 10k bps
-    uint256 devShare = 1000; //10% out of 10k bps
+    uint256 royaltyPercent = 350; // 3.5% out of 10k bps
+    uint256 devShare = 2850; //2850% out of 10k bps
 
     function tokenURI(uint256 tokenId) public view override returns (string memory) {
         return ERC721(MORIES).tokenURI(tokenId);
-    }
-
-    function setRoyaltyPercent(uint256 _royaltyPercent) external onlyOwner {
-        royaltyPercent = _royaltyPercent;
     }
 
     function royaltyInfo(
@@ -43,6 +39,10 @@ contract MoriesEth is Ownable, ERC721('CryptoMories', 'CRYPTOMORIES'), Reentranc
     }
 
     function onERC721Received(address _operator, address _from, uint256 tokenId, bytes calldata) external nonReentrant returns (bytes4) {
+        if (msg.sender == address(this)) {
+            ERC721(MORIES).safeTransferFrom(address(this), _from, tokenId);
+            emit MorieSwapped2(tokenId);
+        }
         if (msg.sender == MORIES) {
             if(minted[tokenId]) {
                 safeTransferFrom(address(this), _from, tokenId);
@@ -65,6 +65,10 @@ contract MoriesEth is Ownable, ERC721('CryptoMories', 'CRYPTOMORIES'), Reentranc
         devShare = newDevShare;
     }
 
+    function setRoyaltyPercent(uint256 _royaltyPercent) external onlyOwner {
+        royaltyPercent = _royaltyPercent;
+    }
+    
     event MorieSwapped1(uint256 tokenId);
     event MorieSwapped2(uint256 tokenId);
 }
